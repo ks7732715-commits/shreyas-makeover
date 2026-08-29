@@ -1,0 +1,195 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fffaf9;
+  color: #34262b;
+}
+/* =========================================
+   SHREYA'S MAKEOVER - SERVICES SECTION
+   ========================================= */
+
+.services-section {
+  padding: 90px 6%;
+  background: #fff8fb;
+}
+
+.services-grid {
+  max-width: 1200px;
+  margin: 45px auto 0;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.service-card {
+  background: #ffffff;
+
+  padding: 32px 24px;
+
+  border-radius: 24px;
+
+  text-align: center;
+
+  border: 1px solid #f1dbe5;
+
+  box-shadow: 0 10px 30px rgba(70, 30, 50, 0.08);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 5px;
+
+  background: #d94678;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+
+  box-shadow: 0 18px 40px rgba(70, 30, 50, 0.14);
+}
+
+.service-icon {
+  width: 70px;
+  height: 70px;
+
+  margin: 0 auto 20px;
+
+  border-radius: 50%;
+
+  background: #fff0f5;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 32px;
+}
+
+.service-card h3 {
+  margin: 0;
+
+  font-size: 21px;
+
+  color: #3d2630;
+}
+
+.service-price {
+  margin-top: 15px;
+
+  font-size: 25px;
+
+  font-weight: 700;
+
+  color: #d94678;
+}
+
+.service-card p {
+  margin: 8px 0 20px;
+
+  color: #806873;
+
+  font-size: 14px;
+}
+
+.service-book {
+  display: inline-block;
+
+  padding: 10px 22px;
+
+  border-radius: 30px;
+
+  background: #d94678;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-weight: 600;
+
+  font-size: 14px;
+
+  transition: 0.3s ease;
+}
+
+.service-book:hover {
+  background: #b8325e;
+
+  transform: scale(1.04);
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 900px) {
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  .services-section {
+    padding: 70px 5%;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .service-card {
+    padding: 28px 20px;
+  }
+
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
