@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../supabase";
 
 const services = [
   { en: "Hair Cut", hi: "हेयर कट" },
