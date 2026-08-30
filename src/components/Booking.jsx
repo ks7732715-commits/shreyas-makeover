@@ -1,38 +1,15 @@
 import { useState } from "react";
+import { supabase } from "../lib/supabase";
 
 const services = [
-  {
-    en: "Hair Cut",
-    hi: "हेयर कट",
-  },
-  {
-    en: "Manicure",
-    hi: "मैनिक्योर",
-  },
-  {
-    en: "Pedicure",
-    hi: "पेडीक्योर",
-  },
-  {
-    en: "Facial",
-    hi: "फेशियल",
-  },
-  {
-    en: "Eyebrows",
-    hi: "आइब्रो",
-  },
-  {
-    en: "Nail Extension",
-    hi: "नेल एक्सटेंशन",
-  },
-  {
-    en: "Hair Spa",
-    hi: "हेयर स्पा",
-  },
-  {
-    en: "Makeup",
-    hi: "मेकअप",
-  },
+  { en: "Hair Cut", hi: "हेयर कट" },
+  { en: "Manicure", hi: "मैनिक्योर" },
+  { en: "Pedicure", hi: "पेडीक्योर" },
+  { en: "Facial", hi: "फेशियल" },
+  { en: "Eyebrows", hi: "आइब्रो" },
+  { en: "Nail Extension", hi: "नेल एक्सटेंशन" },
+  { en: "Hair Spa", hi: "हेयर स्पा" },
+  { en: "Makeup", hi: "मेकअप" },
 ];
 
 const timeSlots = [
@@ -58,6 +35,9 @@ export default function Booking({ language }) {
     message: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
   function handleChange(event) {
     const { name, value } = event.target;
 
@@ -67,7 +47,7 @@ export default function Booking({ language }) {
     }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (
@@ -82,7 +62,6 @@ export default function Booking({ language }) {
           ? "Please fill all required fields."
           : "कृपया सभी जरूरी जानकारी भरें।"
       );
-
       return;
     }
 
@@ -92,11 +71,42 @@ export default function Booking({ language }) {
           ? "Please enter a valid 10-digit phone number."
           : "कृपया सही 10 अंकों का फोन नंबर डालें।"
       );
-
       return;
     }
 
-    const message = `Hello Shreya's Makeover!
+    setLoading(true);
+    setSuccess(false);
+
+    try {
+      // 1. SAVE BOOKING TO SUPABASE
+      const { error } = await supabase.from("bookings").insert([
+        {
+          name: form.name,
+          phone: form.phone,
+          service: form.service,
+          appointment_date: form.date,
+          appointment_time: form.time,
+          message: form.message || "",
+          status: "pending",
+        },
+      ]);
+
+      if (error) {
+        console.error("Supabase booking error:", error);
+        alert(
+          language === "en"
+            ? `Booking could not be saved: ${error.message}`
+            : `बुकिंग सेव नहीं हो सकी: ${error.message}`
+        );
+        setLoading(false);
+        return;
+      }
+
+      // 2. SHOW SUCCESS
+      setSuccess(true);
+
+      // 3. CREATE WHATSAPP MESSAGE
+      const message = `Hello Shreya's Makeover!
 
 I would like to book an appointment.
 
@@ -111,24 +121,44 @@ Please confirm my appointment.
 
 Thank you.`;
 
-    const whatsappNumber = "917355930131";
+      const whatsappNumber = "917355930131";
 
-    const whatsappURL =
-      `https://wa.me/${whatsappNumber}?text=` +
-      encodeURIComponent(message);
+      const whatsappURL =
+        `https://wa.me/${whatsappNumber}?text=` +
+        encodeURIComponent(message);
 
-    window.open(whatsappURL, "_blank");
+      // Small delay so user sees confirmation
+      setTimeout(() => {
+        window.location.href = whatsappURL;
+      }, 500);
+
+      // 4. RESET FORM
+      setForm({
+        name: "",
+        phone: "",
+        service: "",
+        date: "",
+        time: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Booking error:", error);
+
+      alert(
+        language === "en"
+          ? "Something went wrong. Please try again."
+          : "कुछ गलत हो गया। कृपया फिर से कोशिश करें।"
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <section id="booking" className="booking-section">
-
       <div className="section-title">
-
         <p className="eyebrow">
-          {language === "en"
-            ? "APPOINTMENT"
-            : "अपॉइंटमेंट"}
+          {language === "en" ? "APPOINTMENT" : "अपॉइंटमेंट"}
         </p>
 
         <h2>
@@ -142,20 +172,20 @@ Thank you.`;
             ? "Fill the form and send your appointment request on WhatsApp."
             : "फॉर्म भरें और अपनी अपॉइंटमेंट रिक्वेस्ट WhatsApp पर भेजें।"}
         </p>
-
       </div>
 
-      <form
-        className="booking-form"
-        onSubmit={handleSubmit}
-      >
+      {success && (
+        <div className="booking-success">
+          {language === "en"
+            ? "✓ Booking saved! Opening WhatsApp..."
+            : "✓ बुकिंग सेव हो गई! WhatsApp खोला जा रहा है..."}
+        </div>
+      )}
 
+      <form className="booking-form" onSubmit={handleSubmit}>
         <div className="form-group">
-
           <label>
-            {language === "en"
-              ? "Your Name *"
-              : "आपका नाम *"}
+            {language === "en" ? "Your Name *" : "आपका नाम *"}
           </label>
 
           <input
@@ -164,22 +194,15 @@ Thank you.`;
             value={form.name}
             onChange={handleChange}
             placeholder={
-              language === "en"
-                ? "Enter your name"
-                : "अपना नाम लिखें"
+              language === "en" ? "Enter your name" : "अपना नाम लिखें"
             }
             required
           />
-
         </div>
 
-
         <div className="form-group">
-
           <label>
-            {language === "en"
-              ? "Phone Number *"
-              : "फोन नंबर *"}
+            {language === "en" ? "Phone Number *" : "फोन नंबर *"}
           </label>
 
           <input
@@ -192,16 +215,11 @@ Thank you.`;
             inputMode="numeric"
             required
           />
-
         </div>
 
-
         <div className="form-group">
-
           <label>
-            {language === "en"
-              ? "Select Service *"
-              : "सेवा चुनें *"}
+            {language === "en" ? "Select Service *" : "सेवा चुनें *"}
           </label>
 
           <select
@@ -210,37 +228,21 @@ Thank you.`;
             onChange={handleChange}
             required
           >
-
             <option value="">
-              {language === "en"
-                ? "Choose a service"
-                : "सेवा चुनें"}
+              {language === "en" ? "Choose a service" : "सेवा चुनें"}
             </option>
 
             {services.map((service) => (
-
-              <option
-                key={service.en}
-                value={service.en}
-              >
-                {language === "en"
-                  ? service.en
-                  : service.hi}
+              <option key={service.en} value={service.en}>
+                {language === "en" ? service.en : service.hi}
               </option>
-
             ))}
-
           </select>
-
         </div>
 
-
         <div className="form-group">
-
           <label>
-            {language === "en"
-              ? "Preferred Date *"
-              : "पसंदीदा तारीख *"}
+            {language === "en" ? "Preferred Date *" : "पसंदीदा तारीख *"}
           </label>
 
           <input
@@ -248,23 +250,14 @@ Thank you.`;
             name="date"
             value={form.date}
             onChange={handleChange}
-            min={
-              new Date()
-                .toISOString()
-                .split("T")[0]
-            }
+            min={new Date().toISOString().split("T")[0]}
             required
           />
-
         </div>
 
-
         <div className="form-group">
-
           <label>
-            {language === "en"
-              ? "Preferred Time *"
-              : "पसंदीदा समय *"}
+            {language === "en" ? "Preferred Time *" : "पसंदीदा समय *"}
           </label>
 
           <select
@@ -273,31 +266,19 @@ Thank you.`;
             onChange={handleChange}
             required
           >
-
             <option value="">
-              {language === "en"
-                ? "Choose a time"
-                : "समय चुनें"}
+              {language === "en" ? "Choose a time" : "समय चुनें"}
             </option>
 
             {timeSlots.map((time) => (
-
-              <option
-                key={time}
-                value={time}
-              >
+              <option key={time} value={time}>
                 {time}
               </option>
-
             ))}
-
           </select>
-
         </div>
 
-
         <div className="form-group full-width">
-
           <label>
             {language === "en"
               ? "Message (Optional)"
@@ -314,21 +295,22 @@ Thank you.`;
                 : "कोई विशेष अनुरोध?"
             }
           />
-
         </div>
-
 
         <button
           type="submit"
           className="submit-booking"
+          disabled={loading}
         >
-          {language === "en"
+          {loading
+            ? language === "en"
+              ? "Saving Booking..."
+              : "बुकिंग सेव हो रही है..."
+            : language === "en"
             ? "Book on WhatsApp"
             : "WhatsApp पर बुक करें"}
         </button>
-
       </form>
-
     </section>
   );
 }
