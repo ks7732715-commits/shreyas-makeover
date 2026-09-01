@@ -16,8 +16,12 @@ export default function Contact({ language }) {
         </h2>
 
         <p>
-          📍 Rura, Uttar Pradesh
-        </p>
+  📍 Akbarpur Road, Rura, Kanpur Dehat, Uttar Pradesh
+</p>
+
+<p>
+  Near Chacha Misthan Restaurant, Station Road
+</p>
 
         <p>
           📞 7355930131
