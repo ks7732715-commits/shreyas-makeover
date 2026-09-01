@@ -1,125 +1,121 @@
-const services = [
+const serviceCategories = [
   {
-    icon: "✂️",
-    en: "Hair Cut",
-    hi: "हेयर कट",
-    price: "₹200",
-  },
-  {
+    title: "Manicure & Pedicure",
     icon: "💅",
-    en: "Manicure",
-    hi: "मैनिक्योर",
-    price: "₹300",
+    items: [
+      { name: "Classic Manicure", price: "₹300" },
+      { name: "Pedicure", price: "₹400" },
+      { name: "French Manicure", price: "₹500" },
+      { name: "Advance Pedicure", price: "₹600" },
+    ],
   },
   {
-    icon: "🦶",
-    en: "Pedicure",
-    hi: "पेडीक्योर",
-    price: "₹400",
-  },
-  {
-    icon: "✨",
-    en: "Facial",
-    hi: "फेशियल",
-    price: "₹500",
-  },
-  {
-    icon: "🌸",
-    en: "Eyebrows",
-    hi: "आइब्रो",
-    price: "₹50",
-  },
-  {
+    title: "Nail Extension",
     icon: "💎",
-    en: "Nail Extension",
-    hi: "नेल एक्सटेंशन",
-    price: "₹800",
+    note: "Starting from ₹1,000",
+    items: [
+      { name: "Gel Extension" },
+      { name: "Acrylic Extension" },
+      { name: "Soft Gel Extension" },
+      { name: "Extension + Nail Art" },
+    ],
   },
   {
-    icon: "🧖‍♀️",
-    en: "Hair Spa",
-    hi: "हेयर स्पा",
-    price: "₹600",
+    title: "Waxing",
+    icon: "🧖",
+    items: [
+      { name: "Full Arms", price: "₹200" },
+      { name: "Full Legs", price: "₹350" },
+      { name: "Underarms", price: "₹200" },
+    ],
   },
   {
+    title: "Hair",
+    icon: "💇",
+    items: [
+      { name: "Hair Trimming", price: "₹70" },
+      { name: "Hair Wash + Cut", price: "₹150" },
+      { name: "Hair Spa", price: "₹400" },
+      { name: "Full Feather Cut", price: "₹250" },
+    ],
+  },
+  {
+    title: "Makeup",
     icon: "💄",
-    en: "Makeup",
-    hi: "मेकअप",
-    price: "₹1,500",
+    items: [
+      { name: "Party Makeup", price: "₹1,500" },
+      { name: "HD Makeup", price: "₹3,500" },
+      { name: "Bridal Makeup", price: "₹7,000" },
+      { name: "Engagement Makeup", price: "₹5,000" },
+      { name: "HD Bridal Makeup", price: "₹11,000" },
+      { name: "Airbrush Bridal Makeup", price: "₹15,000" },
+      { name: "Shreya's Signature Makeup", price: "₹20,000" },
+    ],
+  },
+  {
+    title: "Facial",
+    icon: "✨",
+    items: [
+      { name: "Cleanup", price: "₹250–₹700" },
+      { name: "Basic Facial", price: "₹350–₹1,000" },
+      { name: "Gold Facial", price: "₹800" },
+      { name: "Hydrafacial", price: "₹600" },
+    ],
   },
 ];
 
 export default function Services({ language }) {
+  const isHindi = language === "hi";
+
   return (
     <section id="services" className="services-section">
-
       <div className="section-title">
-
         <p className="eyebrow">
-          {language === "en"
-            ? "OUR SERVICES"
-            : "हमारी सेवाएं"}
+          {isHindi ? "हमारी सेवाएं" : "OUR SERVICES"}
         </p>
 
         <h2>
-          {language === "en"
-            ? "Beauty & Makeover Services"
-            : "ब्यूटी और मेकओवर सेवाएं"}
+          {isHindi ? "ब्यूटी और मेकअप सेवाएं" : "Beauty & Makeup Services"}
         </h2>
 
         <p>
-          {language === "en"
-            ? "Professional beauty care to help you look and feel your best."
-            : "आपको खूबसूरत और आत्मविश्वासी महसूस कराने के लिए प्रोफेशनल ब्यूटी केयर।"}
+          {isHindi
+            ? "अपनी पसंद की सेवा चुनें और अपॉइंटमेंट बुक करें।"
+            : "Choose from our beauty, hair, nail, facial and makeup services."}
         </p>
-
       </div>
-
 
       <div className="services-grid">
+        {serviceCategories.map((category) => (
+          <div className="service-card" key={category.title}>
+            <div className="service-card-header">
+              <span className="service-icon">{category.icon}</span>
 
-        {services.map((service) => (
+              <div>
+                <h3>{category.title}</h3>
 
-          <div
-            className="service-card"
-            key={service.en}
-          >
-
-            <div className="service-icon">
-              {service.icon}
+                {category.note && (
+                  <p className="service-note">
+                    {category.note}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <h3>
-              {language === "en"
-                ? service.en
-                : service.hi}
-            </h3>
+            <div className="service-list">
+              {category.items.map((item) => (
+                <div className="service-item" key={item.name}>
+                  <span>{item.name}</span>
 
-            <div className="service-price">
-              {service.price}
+                  {item.price && (
+                    <strong>{item.price}</strong>
+                  )}
+                </div>
+              ))}
             </div>
-
-            <p>
-              {language === "en"
-                ? "Professional service"
-                : "प्रोफेशनल सर्विस"}
-            </p>
-
-            <a
-              href="#booking"
-              className="service-book"
-            >
-              {language === "en"
-                ? "Book Now"
-                : "अभी बुक करें"}
-            </a>
-
           </div>
-
         ))}
-
       </div>
-
     </section>
   );
 }
