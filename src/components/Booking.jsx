@@ -2,14 +2,37 @@ import { useState } from "react";
 import { supabase } from "../supabase";
 
 const services = [
-  { en: "Hair Cut", hi: "हेयर कट" },
-  { en: "Manicure", hi: "मैनिक्योर" },
-  { en: "Pedicure", hi: "पेडीक्योर" },
-  { en: "Facial", hi: "फेशियल" },
-  { en: "Eyebrows", hi: "आइब्रो" },
-  { en: "Nail Extension", hi: "नेल एक्सटेंशन" },
-  { en: "Hair Spa", hi: "हेयर स्पा" },
-  { en: "Makeup", hi: "मेकअप" },
+  { category: "Manicure & Pedicure", name: "Classic Manicure", price: "₹300" },
+  { category: "Manicure & Pedicure", name: "Pedicure", price: "₹400" },
+  { category: "Manicure & Pedicure", name: "French Manicure", price: "₹500" },
+  { category: "Manicure & Pedicure", name: "Advance Pedicure", price: "₹600" },
+
+  { category: "Nail Extension", name: "Gel Extension", price: "Starting from ₹1,000" },
+  { category: "Nail Extension", name: "Acrylic Extension", price: "Starting from ₹1,000" },
+  { category: "Nail Extension", name: "Soft Gel Extension", price: "Starting from ₹1,000" },
+  { category: "Nail Extension", name: "Extension + Nail Art", price: "Starting from ₹1,000" },
+
+  { category: "Waxing", name: "Full Arms", price: "₹200" },
+  { category: "Waxing", name: "Full Legs", price: "₹350" },
+  { category: "Waxing", name: "Underarms", price: "₹200" },
+
+  { category: "Hair", name: "Hair Trimming", price: "₹70" },
+  { category: "Hair", name: "Hair Wash + Cut", price: "₹150" },
+  { category: "Hair", name: "Hair Spa", price: "₹400" },
+  { category: "Hair", name: "Full Feather Cut", price: "₹250" },
+
+  { category: "Makeup", name: "Party Makeup", price: "₹1,500" },
+  { category: "Makeup", name: "HD Makeup", price: "₹3,500" },
+  { category: "Makeup", name: "Bridal Makeup", price: "₹7,000" },
+  { category: "Makeup", name: "Engagement Makeup", price: "₹5,000" },
+  { category: "Makeup", name: "HD Bridal Makeup", price: "₹11,000" },
+  { category: "Makeup", name: "Airbrush Bridal Makeup", price: "₹15,000" },
+  { category: "Makeup", name: "Shreya's Signature Makeup", price: "₹20,000" },
+
+  { category: "Facial", name: "Cleanup", price: "₹250–₹700" },
+  { category: "Facial", name: "Basic Facial", price: "₹350–₹1,000" },
+  { category: "Facial", name: "Gold Facial", price: "₹800" },
+  { category: "Facial", name: "Hydrafacial", price: "₹600" },
 ];
 
 const timeSlots = [
@@ -36,7 +59,6 @@ export default function Booking({ language }) {
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -74,20 +96,23 @@ export default function Booking({ language }) {
       return;
     }
 
+    const selectedService = services.find(
+      (service) => service.name === form.service
+    );
+
+    const servicePrice = selectedService?.price || "";
+
     setLoading(true);
-    setSuccess(false);
 
     try {
-      // 1. SAVE BOOKING TO SUPABASE
       const { error } = await supabase.from("bookings").insert([
         {
           name: form.name,
           phone: form.phone,
           service: form.service,
-          appointment_date: form.date,
-          appointment_time: form.time,
+          date: form.date,
+          time: form.time,
           message: form.message || "",
-          status: "pending",
         },
       ]);
 
@@ -95,24 +120,20 @@ export default function Booking({ language }) {
         console.error("Supabase booking error:", error);
         alert(
           language === "en"
-            ? `Booking could not be saved: ${error.message}`
-            : `बुकिंग सेव नहीं हो सकी: ${error.message}`
+            ? "Booking could not be saved. Please try again."
+            : "बुकिंग सेव नहीं हो सकी। कृपया दोबारा कोशिश करें।"
         );
-        setLoading(false);
         return;
       }
 
-      // 2. SHOW SUCCESS
-      setSuccess(true);
-
-      // 3. CREATE WHATSAPP MESSAGE
-      const message = `Hello Shreya's Makeover!
+      const whatsappMessage = `Hello Shreya's Makeover!
 
 I would like to book an appointment.
 
 Name: ${form.name}
 Phone: ${form.phone}
 Service: ${form.service}
+Price: ${servicePrice}
 Date: ${form.date}
 Time: ${form.time}
 Message: ${form.message || "No special request"}
@@ -125,29 +146,16 @@ Thank you.`;
 
       const whatsappURL =
         `https://wa.me/${whatsappNumber}?text=` +
-        encodeURIComponent(message);
+        encodeURIComponent(whatsappMessage);
 
-      // Small delay so user sees confirmation
-      setTimeout(() => {
-        window.location.href = whatsappURL;
-      }, 500);
-
-      // 4. RESET FORM
-      setForm({
-        name: "",
-        phone: "",
-        service: "",
-        date: "",
-        time: "",
-        message: "",
-      });
+      window.location.href = whatsappURL;
     } catch (error) {
-      console.error("Booking error:", error);
+      console.error(error);
 
       alert(
         language === "en"
           ? "Something went wrong. Please try again."
-          : "कुछ गलत हो गया। कृपया फिर से कोशिश करें।"
+          : "कुछ गलत हो गया। कृपया दोबारा कोशिश करें।"
       );
     } finally {
       setLoading(false);
@@ -173,14 +181,6 @@ Thank you.`;
             : "फॉर्म भरें और अपनी अपॉइंटमेंट रिक्वेस्ट WhatsApp पर भेजें।"}
         </p>
       </div>
-
-      {success && (
-        <div className="booking-success">
-          {language === "en"
-            ? "✓ Booking saved! Opening WhatsApp..."
-            : "✓ बुकिंग सेव हो गई! WhatsApp खोला जा रहा है..."}
-        </div>
-      )}
 
       <form className="booking-form" onSubmit={handleSubmit}>
         <div className="form-group">
@@ -217,7 +217,7 @@ Thank you.`;
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group full-width">
           <label>
             {language === "en" ? "Select Service *" : "सेवा चुनें *"}
           </label>
@@ -233,8 +233,8 @@ Thank you.`;
             </option>
 
             {services.map((service) => (
-              <option key={service.en} value={service.en}>
-                {language === "en" ? service.en : service.hi}
+              <option key={service.name} value={service.name}>
+                {service.category} — {service.name} — {service.price}
               </option>
             ))}
           </select>
@@ -280,9 +280,7 @@ Thank you.`;
 
         <div className="form-group full-width">
           <label>
-            {language === "en"
-              ? "Message (Optional)"
-              : "मैसेज (वैकल्पिक)"}
+            {language === "en" ? "Message (Optional)" : "मैसेज (वैकल्पिक)"}
           </label>
 
           <textarea
